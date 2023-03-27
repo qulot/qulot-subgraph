@@ -1,11 +1,9 @@
 {
   "name": "qulot-subgraph",
-  "license": "UNLICENSED",
+  "license": "MIT",
   "scripts": {
     "codegen": "graph codegen",
     "build": "graph build",
-    "deploy": "graph deploy --node https://api.studio.thegraph.com/deploy/ qulot-subgraph",
-    "test": "graph test",
     "prettier:check": "prettier --check \"**/*.{js,json,md,sol,ts,yml}\"",
     "prettier:write": "prettier --write \"**/*.{js,json,md,sol,ts,yml}\"",
     "lint": "yarn lint:ts && yarn prettier:check",
@@ -21,7 +19,6 @@
     "eslint": "^8.36.0",
     "eslint-config-prettier": "^8.8.0",
     "matchstick-as": "0.5.0",
-    "prettier": "^2.8.7",
-    "typescript": "^5.0.2"
+    "prettier": "^2.8.7"
   }
 }

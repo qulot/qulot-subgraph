@@ -27,9 +27,10 @@ type Lottery @entity {
   pricePerTicket: BigInt!
   treasuryFeePercent: Int!
   amountInjectNextRoundPercent: Int!
-  lastRoundId: Round!
-  nextRoundId: Round!
-  rewardRules: [RewardRule!]! @derivedFrom(field: "lottery")
+  lastRoundId: Round
+  nextRoundId: Round
+  rewardRules: [RewardRule!] @derivedFrom(field: "lottery")
+  rounds: [Round!] @derivedFrom(field: "lottery")
 
   "Block number"
   block: BigInt!
@@ -70,7 +71,7 @@ type Round @entity {
   lottery: Lottery!
   totalTickets: BigInt!
   totalAmount: BigInt!
-  winningNumbers: [Int!]!
+  winningNumbers: [Int!]
   startTime: BigInt!
   drawDateTime: BigInt!
   firstRoundId: BigInt!

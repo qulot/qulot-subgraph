@@ -6,9 +6,9 @@ dataSources:
     name: QulotLottery
     network: mumbai
     source:
-      address: "0xfB5346f3CB83CCb8545971d428780f596bDE3a15"
+      address: "0x49b5e7019564501747267350198C58AbB559A502"
       abi: QulotLottery
-      startBlock: 33595526
+      startBlock: 33637858
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -24,7 +24,7 @@ dataSources:
           file: ./abis/QulotLottery.json
       file: ./src/qulot-lottery.ts
       eventHandlers:
-        - event: NewLottery(indexed string,string,string,uint32,uint32,uint32,uint256[],uint256,uint32,uint256,uint32,uint32)
+        - event: NewLottery(string,string,string,uint32,uint32,uint32,uint256[],uint256,uint32,uint256,uint32,uint32)
           handler: handleNewLottery
         - event: NewRewardRule(indexed uint256,string,uint32,uint8,uint256)
           handler: handleNewRewardRule
