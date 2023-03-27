@@ -6,7 +6,7 @@ import {
   RoundOpen,
   RoundReward,
   TicketsClaim,
-  TicketsPurchase
+  TicketsPurchase,
 } from "../generated/QulotLottery/QulotLottery";
 import { Lottery, RewardRule, Round, User } from "../generated/schema";
 import { BigInt } from "@graphprotocol/graph-ts";
@@ -20,7 +20,7 @@ export function handleNewLottery(event: NewLottery): void {
   lottery.numberOfItems = event.params.numberOfItems.toI32();
   lottery.minValuePerItem = event.params.minValuePerItem.toI32();
   lottery.maxValuePerItem = event.params.maxValuePerItem.toI32();
-  lottery.periodDays = event.params.periodDays.map<i32>(periodDay => periodDay.toI32());
+  lottery.periodDays = event.params.periodDays.map<i32>((periodDay) => periodDay.toI32());
   lottery.periodHourOfDays = event.params.periodHourOfDays.toI32();
   lottery.maxNumberTicketsPerBuy = event.params.maxNumberTicketsPerBuy.toI32();
   lottery.pricePerTicket = event.params.pricePerTicket;
@@ -61,7 +61,7 @@ export function handleRoundDraw(event: RoundDraw): void {
   const round = Round.load(event.params.roundId.toString());
   if (round) {
     round.status = "Draw";
-    round.winningNumbers = event.params.numbers.map<i32>(num => num.toI32());
+    round.winningNumbers = event.params.numbers.map<i32>((num) => num.toI32());
     round.save();
   }
 }
