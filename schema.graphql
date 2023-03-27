@@ -1,0 +1,121 @@
+type AdminTokenRecovery @entity(immutable: true) {
+  id: Bytes!
+  token: Bytes! # address
+  amount: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type NewLottery @entity(immutable: true) {
+  id: Bytes!
+  lotteryId: String! # string
+  verboseName: String! # string
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type NewRandomGenerator @entity(immutable: true) {
+  id: Bytes!
+  randomGeneratorAddress: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type NewRewardRule @entity(immutable: true) {
+  id: Bytes!
+  lotteryId: String! # string
+  _matchNumber: BigInt! # uint32
+  rewardUnit: Int! # uint8
+  rewardValue: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type OwnershipTransferred @entity(immutable: true) {
+  id: Bytes!
+  previousOwner: Bytes! # address
+  newOwner: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type RoundClose @entity(immutable: true) {
+  id: Bytes!
+  roundId: BigInt! # uint256
+  endTime: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type RoundDraw @entity(immutable: true) {
+  id: Bytes!
+  roundId: BigInt! # uint256
+  numbers: [BigInt]! # uint32[]
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type RoundInjection @entity(immutable: true) {
+  id: Bytes!
+  roundId: BigInt! # uint256
+  injectedAmount: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type RoundOpen @entity(immutable: true) {
+  id: Bytes!
+  roundId: BigInt! # uint256
+  startTime: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type RoundReward @entity(immutable: true) {
+  id: Bytes!
+  roundId: BigInt! # uint256
+  amountTreasury: BigInt! # uint256
+  amountInjectNextRound: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type TicketsClaim @entity(immutable: true) {
+  id: Bytes!
+  claimer: Bytes! # address
+  amount: BigInt! # uint256
+  numberTickets: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type TicketsClam @entity(immutable: true) {
+  id: Bytes!
+  claimer: Bytes! # address
+  roundId: BigInt! # uint256
+  amount: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type TicketsPurchase @entity(immutable: true) {
+  id: Bytes!
+  buyer: Bytes! # address
+  roundId: BigInt! # uint256
+  ticketIds: [BigInt]! # uint256[]
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
