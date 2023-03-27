@@ -14,47 +14,29 @@ dataSources:
       apiVersion: 0.0.7
       language: wasm/assemblyscript
       entities:
-        - AdminTokenRecovery
-        - NewLottery
-        - NewRandomGenerator
-        - NewRewardRule
-        - OwnershipTransferred
-        - RoundClose
-        - RoundDraw
-        - RoundInjection
-        - RoundOpen
-        - RoundReward
-        - TicketsClaim
-        - TicketsClam
-        - TicketsPurchase
+        - Lottery
+        - RewardRule
+        - User
+        - Round
+        - Ticket
       abis:
         - name: QulotLottery
           file: ./abis/QulotLottery.json
+      file: ./src/qulot-lottery.ts
       eventHandlers:
-        - event: AdminTokenRecovery(address,uint256)
-          handler: handleAdminTokenRecovery
-        - event: NewLottery(indexed string,string)
+        - event: NewLottery(indexed string,string,string,uint32,uint32,uint32,uint256[],uint256,uint32,uint256,uint32,uint32)
           handler: handleNewLottery
-        - event: NewRandomGenerator(address)
-          handler: handleNewRandomGenerator
-        - event: NewRewardRule(string,uint32,uint8,uint256)
+        - event: NewRewardRule(indexed uint256,string,uint32,uint8,uint256)
           handler: handleNewRewardRule
-        - event: OwnershipTransferred(indexed address,indexed address)
-          handler: handleOwnershipTransferred
-        - event: RoundClose(indexed uint256,uint256)
+        - event: RoundOpen(indexed uint256,string,uint256,uint256,uint256)
+          handler: handleRoundOpen
+        - event: RoundClose(indexed uint256,uint256,uint256,uint256)
           handler: handleRoundClose
         - event: RoundDraw(indexed uint256,uint32[])
           handler: handleRoundDraw
-        - event: RoundInjection(indexed uint256,uint256)
-          handler: handleRoundInjection
-        - event: RoundOpen(indexed uint256,uint256)
-          handler: handleRoundOpen
         - event: RoundReward(indexed uint256,uint256,uint256)
           handler: handleRoundReward
-        - event: TicketsClaim(indexed address,uint256,uint256)
-          handler: handleTicketsClaim
-        - event: TicketsClam(indexed address,indexed uint256,uint256)
-          handler: handleTicketsClam
-        - event: TicketsPurchase(indexed address,indexed uint256,uint256[])
+        - event: TicketsPurchase(indexed address,indexed uint256,uint256[],uint256)
           handler: handleTicketsPurchase
-      file: ./src/qulot-lottery.ts
+        - event: TicketsClaim(indexed address,uint256,uint256[])
+          handler: handleTicketsClaim

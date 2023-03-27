@@ -1,121 +1,83 @@
-type AdminTokenRecovery @entity(immutable: true) {
-  id: Bytes!
-  token: Bytes! # address
-  amount: BigInt! # uint256
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
+enum RoundStatus {
+  Open
+  Draw
+  Close
+  Reward
 }
 
-type NewLottery @entity(immutable: true) {
-  id: Bytes!
-  lotteryId: String! # string
-  verboseName: String! # string
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
+enum RewardUnit {
+  Percent
+  Fixed
 }
 
-type NewRandomGenerator @entity(immutable: true) {
-  id: Bytes!
-  randomGeneratorAddress: Bytes! # address
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
+"""
+Qulot Lottery
+"""
+type Lottery @entity {
+  "ID"
+  id: ID!
+  verboseName: String!
+  picture: String!
+  numberOfItems: Int!
+  minValuePerItem: Int!
+  maxValuePerItem: Int!
+  periodDays: [Int!]!
+  periodHourOfDays: Int!
+  maxNumberTicketsPerBuy: Int!
+  pricePerTicket: BigInt!
+  treasuryFeePercent: Int!
+  amountInjectNextRoundPercent: Int!
+  lastRoundId: Round!
+  nextRoundId: Round!
+  rewardRules: [RewardRule!]! @derivedFrom(field: "lottery")
+
+  "Block number"
+  block: BigInt!
+  "Block timestamp"
+  timestamp: BigInt!
 }
 
-type NewRewardRule @entity(immutable: true) {
-  id: Bytes!
-  lotteryId: String! # string
-  _matchNumber: BigInt! # uint32
-  rewardUnit: Int! # uint8
-  rewardValue: BigInt! # uint256
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
+type RewardRule @entity {
+  "ID"
+  id: ID!
+  lottery: Lottery!
+  matchNumber: Int!
+  rewardUnit: RewardUnit!
+  rewardValue: BigInt!
+
+  "Block number"
+  block: BigInt!
+  "Block timestamp"
+  timestamp: BigInt!
 }
 
-type OwnershipTransferred @entity(immutable: true) {
-  id: Bytes!
-  previousOwner: Bytes! # address
-  newOwner: Bytes! # address
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
+type User @entity {
+  "ID"
+  id: ID!
+  totalTickets: BigInt!
+  totalAmount: BigInt!
+  totalWinAmount: BigInt!
+
+  "Block number"
+  block: BigInt!
+  "Block timestamp"
+  timestamp: BigInt!
 }
 
-type RoundClose @entity(immutable: true) {
-  id: Bytes!
-  roundId: BigInt! # uint256
-  endTime: BigInt! # uint256
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
-}
+type Round @entity {
+  "ID"
+  id: ID!
+  lottery: Lottery!
+  totalTickets: BigInt!
+  totalAmount: BigInt!
+  winningNumbers: [Int!]!
+  startTime: BigInt!
+  drawDateTime: BigInt!
+  firstRoundId: BigInt!
+  status: RoundStatus!
 
-type RoundDraw @entity(immutable: true) {
-  id: Bytes!
-  roundId: BigInt! # uint256
-  numbers: [BigInt]! # uint32[]
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
-}
-
-type RoundInjection @entity(immutable: true) {
-  id: Bytes!
-  roundId: BigInt! # uint256
-  injectedAmount: BigInt! # uint256
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
-}
-
-type RoundOpen @entity(immutable: true) {
-  id: Bytes!
-  roundId: BigInt! # uint256
-  startTime: BigInt! # uint256
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
-}
-
-type RoundReward @entity(immutable: true) {
-  id: Bytes!
-  roundId: BigInt! # uint256
-  amountTreasury: BigInt! # uint256
-  amountInjectNextRound: BigInt! # uint256
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
-}
-
-type TicketsClaim @entity(immutable: true) {
-  id: Bytes!
-  claimer: Bytes! # address
-  amount: BigInt! # uint256
-  numberTickets: BigInt! # uint256
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
-}
-
-type TicketsClam @entity(immutable: true) {
-  id: Bytes!
-  claimer: Bytes! # address
-  roundId: BigInt! # uint256
-  amount: BigInt! # uint256
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
-}
-
-type TicketsPurchase @entity(immutable: true) {
-  id: Bytes!
-  buyer: Bytes! # address
-  roundId: BigInt! # uint256
-  ticketIds: [BigInt]! # uint256[]
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
+  "Block number"
+  block: BigInt!
+  "Block timestamp"
+  timestamp: BigInt!
 }

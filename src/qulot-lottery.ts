@@ -1,219 +1,148 @@
 import {
-  AdminTokenRecovery as AdminTokenRecoveryEvent,
-  NewLottery as NewLotteryEvent,
-  NewRandomGenerator as NewRandomGeneratorEvent,
-  NewRewardRule as NewRewardRuleEvent,
-  OwnershipTransferred as OwnershipTransferredEvent,
-  RoundClose as RoundCloseEvent,
-  RoundDraw as RoundDrawEvent,
-  RoundInjection as RoundInjectionEvent,
-  RoundOpen as RoundOpenEvent,
-  RoundReward as RoundRewardEvent,
-  TicketsClaim as TicketsClaimEvent,
-  TicketsClam as TicketsClamEvent,
-  TicketsPurchase as TicketsPurchaseEvent
-} from "../generated/QulotLottery/QulotLottery"
-import {
-  AdminTokenRecovery,
   NewLottery,
-  NewRandomGenerator,
   NewRewardRule,
-  OwnershipTransferred,
   RoundClose,
   RoundDraw,
-  RoundInjection,
   RoundOpen,
   RoundReward,
   TicketsClaim,
-  TicketsClam,
-  TicketsPurchase
-} from "../generated/schema"
+  TicketsPurchase,
+} from "../generated/QulotLottery/QulotLottery";
+import { Lottery, RewardRule, Round, User } from "../generated/schema";
+import { BigInt } from "@graphprotocol/graph-ts";
 
-export function handleAdminTokenRecovery(event: AdminTokenRecoveryEvent): void {
-  let entity = new AdminTokenRecovery(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  )
-  entity.token = event.params.token
-  entity.amount = event.params.amount
+const REWARD_UNITS = ["Percent", "Fixed"];
 
-  entity.blockNumber = event.block.number
-  entity.blockTimestamp = event.block.timestamp
-  entity.transactionHash = event.transaction.hash
+export function handleNewLottery(event: NewLottery): void {
+  const {
+    lotteryId,
+    verboseName,
+    picture,
+    numberOfItems,
+    minValuePerItem,
+    maxValuePerItem,
+    periodDays,
+    periodHourOfDays,
+    maxNumberTicketsPerBuy,
+    pricePerTicket,
+    treasuryFeePercent,
+    amountInjectNextRoundPercent,
+  } = event.params;
+  const lottery = new Lottery(lotteryId.toString());
+  lottery.verboseName = verboseName;
+  lottery.picture = picture;
+  lottery.numberOfItems = numberOfItems.toI32();
+  lottery.minValuePerItem = minValuePerItem.toI32();
+  lottery.maxValuePerItem = maxValuePerItem.toI32();
+  lottery.periodDays = periodDays.map((periodDay) => periodDay.toI32());
+  lottery.periodHourOfDays = periodHourOfDays.toI32();
+  lottery.maxNumberTicketsPerBuy = maxNumberTicketsPerBuy.toI32();
+  lottery.pricePerTicket = pricePerTicket;
+  lottery.treasuryFeePercent = treasuryFeePercent.toI32();
+  lottery.amountInjectNextRoundPercent = amountInjectNextRoundPercent.toI32();
 
-  entity.save()
+  lottery.block = event.block.number;
+  lottery.timestamp = event.block.timestamp;
+
+  lottery.save();
 }
 
-export function handleNewLottery(event: NewLotteryEvent): void {
-  let entity = new NewLottery(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  )
-  entity.lotteryId = event.params.lotteryId
-  entity.verboseName = event.params.verboseName
+export function handleNewRewardRule(event: NewRewardRule): void {
+  const { lotteryId, matchNumber, rewardUnit, rewardValue } = event.params;
+  const rewardRuleId = lotteryId + ":" + matchNumber.toString();
+  const rewardRule = new RewardRule(rewardRuleId);
+  rewardRule.lottery = lotteryId;
+  rewardRule.rewardUnit = REWARD_UNITS[rewardUnit];
+  rewardRule.rewardValue = rewardValue;
 
-  entity.blockNumber = event.block.number
-  entity.blockTimestamp = event.block.timestamp
-  entity.transactionHash = event.transaction.hash
+  rewardRule.block = event.block.number;
+  rewardRule.timestamp = event.block.timestamp;
 
-  entity.save()
+  rewardRule.save();
 }
 
-export function handleNewRandomGenerator(event: NewRandomGeneratorEvent): void {
-  let entity = new NewRandomGenerator(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  )
-  entity.randomGeneratorAddress = event.params.randomGeneratorAddress
-
-  entity.blockNumber = event.block.number
-  entity.blockTimestamp = event.block.timestamp
-  entity.transactionHash = event.transaction.hash
-
-  entity.save()
+export function handleRoundClose(event: RoundClose): void {
+  const { roundId, totalAmount, totalTickets } = event.params;
+  const round = Round.load(roundId.toString());
+  if (round) {
+    round.status = "Close";
+    round.totalAmount = totalAmount;
+    round.totalTickets = totalTickets;
+    round.save();
+  }
 }
 
-export function handleNewRewardRule(event: NewRewardRuleEvent): void {
-  let entity = new NewRewardRule(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  )
-  entity.lotteryId = event.params.lotteryId
-  entity._matchNumber = event.params._matchNumber
-  entity.rewardUnit = event.params.rewardUnit
-  entity.rewardValue = event.params.rewardValue
-
-  entity.blockNumber = event.block.number
-  entity.blockTimestamp = event.block.timestamp
-  entity.transactionHash = event.transaction.hash
-
-  entity.save()
+export function handleRoundDraw(event: RoundDraw): void {
+  const { roundId, numbers } = event.params;
+  const round = Round.load(roundId.toString());
+  if (round) {
+    round.status = "Draw";
+    round.winningNumbers = numbers.map((num) => num.toI32());
+    round.save();
+  }
 }
 
-export function handleOwnershipTransferred(
-  event: OwnershipTransferredEvent
-): void {
-  let entity = new OwnershipTransferred(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  )
-  entity.previousOwner = event.params.previousOwner
-  entity.newOwner = event.params.newOwner
+export function handleRoundOpen(event: RoundOpen): void {
+  const { roundId, lotteryId, totalAmount, startTime, drawDateTime } = event.params;
+  const round = new Round(roundId.toString());
+  round.lottery = lotteryId;
+  round.totalAmount = totalAmount;
+  round.startTime = startTime;
+  round.drawDateTime = drawDateTime;
+  round.status = "Open";
 
-  entity.blockNumber = event.block.number
-  entity.blockTimestamp = event.block.timestamp
-  entity.transactionHash = event.transaction.hash
+  round.block = event.block.number;
+  round.timestamp = event.block.timestamp;
 
-  entity.save()
+  round.save();
+
+  const lottery = Lottery.load(lotteryId);
+  if (lottery) {
+    lottery.lastRoundId = lottery.nextRoundId;
+    lottery.nextRoundId = roundId.toString();
+    lottery.save();
+  }
 }
 
-export function handleRoundClose(event: RoundCloseEvent): void {
-  let entity = new RoundClose(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  )
-  entity.roundId = event.params.roundId
-  entity.endTime = event.params.endTime
-
-  entity.blockNumber = event.block.number
-  entity.blockTimestamp = event.block.timestamp
-  entity.transactionHash = event.transaction.hash
-
-  entity.save()
+export function handleRoundReward(event: RoundReward): void {
+  const { roundId } = event.params;
+  const round = Round.load(roundId.toString());
+  if (round) {
+    round.status = "Reward";
+    round.save();
+  }
 }
 
-export function handleRoundDraw(event: RoundDrawEvent): void {
-  let entity = new RoundDraw(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  )
-  entity.roundId = event.params.roundId
-  entity.numbers = event.params.numbers
+export function handleTicketsPurchase(event: TicketsPurchase): void {
+  const { roundId, buyer, ticketIds, amount } = event.params;
 
-  entity.blockNumber = event.block.number
-  entity.blockTimestamp = event.block.timestamp
-  entity.transactionHash = event.transaction.hash
-
-  entity.save()
+  const userId = buyer.toHex();
+  let user = User.load(userId);
+  if (user == null) {
+    user = new User(userId);
+    user.totalAmount = BigInt.zero();
+    user.totalWinAmount = BigInt.zero();
+    user.totalTickets = BigInt.zero();
+    user.block = event.block.number;
+    user.timestamp = event.block.timestamp;
+    user.save();
+  }
+  user.totalTickets = user.totalTickets.plus(BigInt.fromI32(ticketIds.length));
+  user.totalAmount = user.totalAmount.plus(amount);
+  user.save();
+  const round = Round.load(roundId.toString());
+  if (round) {
+    round.totalTickets = round.totalTickets.plus(BigInt.fromI32(ticketIds.length));
+    round.totalAmount = round.totalAmount.plus(amount);
+    round.save();
+  }
 }
 
-export function handleRoundInjection(event: RoundInjectionEvent): void {
-  let entity = new RoundInjection(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  )
-  entity.roundId = event.params.roundId
-  entity.injectedAmount = event.params.injectedAmount
-
-  entity.blockNumber = event.block.number
-  entity.blockTimestamp = event.block.timestamp
-  entity.transactionHash = event.transaction.hash
-
-  entity.save()
-}
-
-export function handleRoundOpen(event: RoundOpenEvent): void {
-  let entity = new RoundOpen(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  )
-  entity.roundId = event.params.roundId
-  entity.startTime = event.params.startTime
-
-  entity.blockNumber = event.block.number
-  entity.blockTimestamp = event.block.timestamp
-  entity.transactionHash = event.transaction.hash
-
-  entity.save()
-}
-
-export function handleRoundReward(event: RoundRewardEvent): void {
-  let entity = new RoundReward(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  )
-  entity.roundId = event.params.roundId
-  entity.amountTreasury = event.params.amountTreasury
-  entity.amountInjectNextRound = event.params.amountInjectNextRound
-
-  entity.blockNumber = event.block.number
-  entity.blockTimestamp = event.block.timestamp
-  entity.transactionHash = event.transaction.hash
-
-  entity.save()
-}
-
-export function handleTicketsClaim(event: TicketsClaimEvent): void {
-  let entity = new TicketsClaim(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  )
-  entity.claimer = event.params.claimer
-  entity.amount = event.params.amount
-  entity.numberTickets = event.params.numberTickets
-
-  entity.blockNumber = event.block.number
-  entity.blockTimestamp = event.block.timestamp
-  entity.transactionHash = event.transaction.hash
-
-  entity.save()
-}
-
-export function handleTicketsClam(event: TicketsClamEvent): void {
-  let entity = new TicketsClam(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  )
-  entity.claimer = event.params.claimer
-  entity.roundId = event.params.roundId
-  entity.amount = event.params.amount
-
-  entity.blockNumber = event.block.number
-  entity.blockTimestamp = event.block.timestamp
-  entity.transactionHash = event.transaction.hash
-
-  entity.save()
-}
-
-export function handleTicketsPurchase(event: TicketsPurchaseEvent): void {
-  let entity = new TicketsPurchase(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  )
-  entity.buyer = event.params.buyer
-  entity.roundId = event.params.roundId
-  entity.ticketIds = event.params.ticketIds
-
-  entity.blockNumber = event.block.number
-  entity.blockTimestamp = event.block.timestamp
-  entity.transactionHash = event.transaction.hash
-
-  entity.save()
+export function handleTicketsClaims(event: TicketsClaim): void {
+  const { claimer, amount } = event.params;
+  const user = User.load(claimer.toHex());
+  if (user) {
+    user.totalWinAmount = user.totalWinAmount.plus(amount);
+    user.save();
+  }
 }
