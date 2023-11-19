@@ -1,0 +1,47 @@
+specVersion: 0.0.5
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum
+    name: QulotLottery
+    network: matic
+    source:
+      address: "0x0FbBb9C91a109D1440A8fd65D5670238160f78CA"
+      abi: QulotLottery
+      startBlock: 50046597
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - Lottery
+        - RewardRule
+        - User
+        - Round
+        - Ticket
+        - Order
+      abis:
+        - name: QulotLottery
+          file: ./abis/QulotLottery.json
+      file: ./src/mappings.ts
+      eventHandlers:
+        - event: NewLottery(string,(string,string,uint32,uint32,uint32,uint256[],uint256,uint32,uint256,uint32,uint32,uint32))
+          handler: handleNewLottery
+        - event: ModifiedLottery(string,(string,string,uint32,uint32,uint32,uint256[],uint256,uint32,uint256,uint32,uint32,uint32))
+          handler: handleModifiedLottery
+        - event: NewRewardRule(uint256,string,(uint256,uint256))
+          handler: handleNewRewardRule
+        - event: RoundOpen(uint256,string,uint256,uint256,uint256)
+          handler: handleRoundOpen
+        - event: RoundClose(uint256,uint256,uint256)
+          handler: handleRoundClose
+        - event: RoundDraw(uint256,uint32[])
+          handler: handleRoundDraw
+        - event: RoundReward(uint256,uint256,uint256,uint256)
+          handler: handleRoundReward
+        - event: RoundInjection(uint256,uint256)
+          handler: handleRoundInjection
+        - event: MultiRoundsTicketsPurchase(indexed address,(uint256,uint256,uint256[],uint256,uint256)[])
+          handler: handleMultiRoundsTicketsPurchase
+        - event: TicketsClaim(indexed address,uint256,uint256[])
+          handler: handleTicketsClaims

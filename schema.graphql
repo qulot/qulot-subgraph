@@ -1,0 +1,102 @@
+enum RoundStatus {
+  Open
+  Draw
+  Close
+  Reward
+}
+
+"""
+Qulot Lottery
+"""
+type Lottery @entity {
+  "ID"
+  id: ID!
+  verboseName: String!
+  picture: String!
+  numberOfItems: Int!
+  minValuePerItem: Int!
+  maxValuePerItem: Int!
+  periodDays: [Int!]!
+  periodHourOfDays: Int!
+  maxNumberTicketsPerBuy: Int!
+  pricePerTicket: BigInt!
+  treasuryFeePercent: Int!
+  amountInjectNextRoundPercent: Int!
+  discountPercent: Int!
+  lastRound: Round
+  nextRound: Round
+  rewardRules: [RewardRule!] @derivedFrom(field: "lottery")
+  rounds: [Round!] @derivedFrom(field: "lottery")
+
+  "Block number"
+  block: BigInt!
+  "Block timestamp"
+  timestamp: BigInt!
+}
+
+type RewardRule @entity {
+  "ID"
+  id: ID!
+  lottery: Lottery!
+  matchNumber: Int!
+  rewardValue: BigInt!
+
+  "Block number"
+  block: BigInt!
+  "Block timestamp"
+  timestamp: BigInt!
+}
+
+type User @entity {
+  "ID"
+  id: ID!
+  totalTickets: BigInt!
+  totalAmount: BigInt!
+  totalWinAmount: BigInt!
+
+  "Block number"
+  block: BigInt!
+  "Block timestamp"
+  timestamp: BigInt!
+}
+
+type Round @entity {
+  "ID"
+  id: ID!
+  lottery: Lottery!
+  totalTickets: BigInt!
+  totalAmount: BigInt!
+  winningNumbers: [Int!]
+  startTime: BigInt
+  endTime: BigInt
+  firstRound: Round
+  status: RoundStatus!
+
+  "Block number"
+  block: BigInt!
+  "Block timestamp"
+  timestamp: BigInt!
+}
+
+type Order @entity {
+  "ID"
+  id: ID!
+  user: User!
+  round: Round!
+  ticketIds: [BigInt!]
+  orderAmount: BigInt
+
+  "Block number"
+  block: BigInt!
+  "Block timestamp"
+  timestamp: BigInt!
+}
+
+"""
+KeyValue Schema
+"""
+type KeyValue @entity {
+  "ID"
+  id: ID!
+  value: String
+}
