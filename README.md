@@ -23,6 +23,6 @@ For any of the subgraph: `blocks` as `[subgraph]`
 
 2. Run the `yarn build` command to build the subgraph, and check compilation errors before deploying.
 
-3. Run `graph auth --studio '<DEPLOY KEY>' -l v0.0.6`
+3. Run `graph auth --studio '<DEPLOY KEY>'`
 
-4. Deploy via `graph deploy --studio <SUBGRAPH_SLUG>`.
+4. Deploy via `graph deploy --studio <SUBGRAPH_SLUG> -l v0.0.1`.
